@@ -1,4 +1,0 @@
-Name: hg
-Address: ghg
-Book:       Harry Potter and the Goblet of Fire
-Price: 365 EGP

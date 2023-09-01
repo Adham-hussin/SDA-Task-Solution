@@ -1,4 +1,0 @@
-Name: fvfvfv
-Address: vfvfv
-Book: Grokking Algorithms
-Price: 200 EGP

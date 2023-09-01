@@ -1,4 +1,4 @@
-Name: vcv
-Address: vfdvdf
+Name: adham
+Address: 221b baker street
 Book: Harry Potter and the Chamber Of Secrets
 Price: 350 EGP

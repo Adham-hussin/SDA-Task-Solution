@@ -1,4 +1,0 @@
-Name: Ad
-Address: gfdg
-Book:       Harry Potter and the Chamber Of Secrets
-Price: 350 EGP

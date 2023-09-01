@@ -1,4 +1,0 @@
-Name: ann
-Address: ii m4 fady
-Book:       Anne With An E
-Price: 420 EGP

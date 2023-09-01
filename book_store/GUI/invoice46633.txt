@@ -1,4 +1,0 @@
-Name: bhb 
-Address: hgfgv
-Book: HarryPotterandtheGobletofFire
-Price: 365 EGP

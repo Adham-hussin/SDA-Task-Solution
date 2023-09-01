@@ -38,7 +38,7 @@ class library:
         self.__sections.append(newSection)
 
     def __import_books(self):
-        with open('../../books.json', 'r') as db:
+        with open('books.json', 'r') as db:
             data: dict = json.load(db)
         for book in data:
             exists: bool = False

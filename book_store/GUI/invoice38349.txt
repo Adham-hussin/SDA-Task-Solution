@@ -1,4 +1,0 @@
-Name: fsgd
-Address: gfdg
-Book:       Animal Farm
-Price: 185 EGP

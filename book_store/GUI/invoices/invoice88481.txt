@@ -1,4 +1,0 @@
-Name: j
-Address: j
-Book: Grokking Algorithms
-Price: 200 EGP
