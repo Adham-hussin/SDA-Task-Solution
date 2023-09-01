@@ -1,0 +1,12 @@
+# Execute the code
+app = QtWidgets.QApplication([])
+window = QtWidgets.QMainWindow()
+ui = Ui_MainWindow()
+ui.setupUi(window)
+window.show()
+app.exec_()
+
+#to make a virtual environment run the following commands in the terminal
+#pip install virtualenv
+#virtualenv venv
+#venv\Scripts\activate
