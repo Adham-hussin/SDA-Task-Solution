@@ -9,7 +9,7 @@ from library import library
 
 
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow, lib):
+    def setupUi(self, MainWindow, lib:library):
         ############################## Main Window #########################################
 
         MainWindow.setObjectName("MainWindow")
