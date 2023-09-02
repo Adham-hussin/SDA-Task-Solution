@@ -1,0 +1,7 @@
+{
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.extraPaths": [
+        "./book_store/classes",
+        "./book_store/GUI"
+    ]
+}

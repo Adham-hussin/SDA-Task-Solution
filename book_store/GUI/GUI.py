@@ -42,13 +42,13 @@ class Ui_MainWindow(object):
 
 
         ############################## Grid Layout Items #########################################
-
+        items = []
         ############################## Search Bar #########################################
         
         self.searchBar = QtWidgets.QLineEdit(self.gridLayoutWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Ignored)
         configSizePolicy(self, sizePolicy)
-        configSearchBar(self, sizePolicy)
+        configSearchBar(self, sizePolicy, items)
 
         
         ############################## Filter Button ######################################
@@ -66,7 +66,7 @@ class Ui_MainWindow(object):
         
         ############################## List View Items #########################################
 
-        items = []
+        
         secs = lib.get_sections()
         secsNames = [sec.get_title() for sec in secs]
         authors = set()
@@ -256,7 +256,7 @@ def configRemoveFilters(self):
         self.removeFilters.clicked.connect(lambda: self.filterByAuthor.setCurrentIndex(0))
         self.removeFilters.clicked.connect(lambda: self.filterBySection.setCurrentIndex(0))
 
-def configSearchBar(self, sizePolicy):
+def configSearchBar(self, sizePolicy, items):
         self.searchBar.setFont(QtGui.QFont("Arial", 10))
         self.searchBar.setPlaceholderText("Search for a book")
         self.searchBar.setSizePolicy(sizePolicy)
@@ -267,6 +267,7 @@ def configSearchBar(self, sizePolicy):
                                      "background-color:#808080;")
         self.searchBar.setClearButtonEnabled(False)
         self.searchBar.setObjectName("searchBar")
+        self.searchBar.textChanged.connect(lambda: onSearchFilterChanged(self, items))
         self.gridLayout.addWidget(self.searchBar, 0, 0, 1, 1)
 
 def configSearchButton(self, items):
@@ -443,16 +444,16 @@ def onBuyClick(self, lib):
 def onSearchFilterChanged(self, items):
                 selectedAuthor = self.filterByAuthor.currentText()
                 selectedSection = self.filterBySection.currentText()
-                currentText = self.searchBar.text()
-                for item in items: #hide all the items first
+                currentText = self.searchBar.text().lower()
+                for item in items: #hide all the items details first
                         if(self.listWidget.item(self.listWidget.row(item)) != None):
                                 self.listWidget.item(self.listWidget.row(item)+1).setHidden(True)
                                 self.listWidget.item(self.listWidget.row(item)+2).setHidden(True)
                        
-                for item in items: #show the items that match the selected author
+                for item in items: 
                         #check if item is not removed by checking for NoneType
                         if(self.listWidget.item(self.listWidget.row(item)) != None):
-                                if(currentText in self.listWidget.item(self.listWidget.row(item)).text() or currentText == ""):
+                                if(currentText in self.listWidget.item(self.listWidget.row(item)).text().lower() or currentText == ""):
                                         if (selectedAuthor in self.listWidget.item(self.listWidget.row(item)+1).text() or selectedAuthor == "Filter By Author"):
                                                 if(selectedSection in self.listWidget.item(self.listWidget.row(item)+1).text() or selectedSection == "Filter By Section"):
                                                         item.setHidden(False)
