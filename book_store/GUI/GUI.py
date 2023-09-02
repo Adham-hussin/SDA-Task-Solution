@@ -43,12 +43,14 @@ class Ui_MainWindow(object):
 
         ############################## Grid Layout Items #########################################
         items = []
+        secs = lib.get_sections()
+        secsNames = [sec.get_title() for sec in secs]
         ############################## Search Bar #########################################
         
         self.searchBar = QtWidgets.QLineEdit(self.gridLayoutWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Ignored)
         configSizePolicy(self, sizePolicy)
-        configSearchBar(self, sizePolicy, items)
+        configSearchBar(self, sizePolicy, items, secs, secsNames, lib)
 
         
         ############################## Filter Button ######################################
@@ -67,8 +69,7 @@ class Ui_MainWindow(object):
         ############################## List View Items #########################################
 
         
-        secs = lib.get_sections()
-        secsNames = [sec.get_title() for sec in secs]
+        
         authors = set()
         addBooks(self, items, secs, authors, lib)
 
@@ -93,7 +94,7 @@ class Ui_MainWindow(object):
         ############################## Search Button ######################################
 
         self.searchButton = QtWidgets.QPushButton(self.gridLayoutWidget)
-        configSearchButton(self, items)
+        configSearchButton(self, items, secs, secsNames, lib)
 
 
         ############################## Side Bar #########################################
@@ -118,13 +119,13 @@ class Ui_MainWindow(object):
         ############################## Filter By Author #########################################
 
         self.filterByAuthor = QtWidgets.QComboBox(self.verticalLayoutWidget)
-        configAuthorFilter(self, items, authors)
+        configAuthorFilter(self, items, authors, secs, secsNames, lib)
 
         
         ############################## Filter By Section #########################################
 
         self.filterBySection = QtWidgets.QComboBox(self.verticalLayoutWidget)
-        configSectionFilter(self, items, secsNames)
+        configSectionFilter(self, items, secs, secsNames, lib)
 
         
         ############################## Remove Filters #########################################
@@ -182,7 +183,7 @@ def addBooks(self, items, secs, authors, lib):
                         #make a signal for the button
                         button.clicked.connect(lambda: onBuyClick(self, lib))
 
-def configAuthorFilter(self, items, authors):
+def configAuthorFilter(self, items, authors, secs, secsNames, lib):
         self.filterByAuthor.setGeometry(QtCore.QRect(10, 60, 281, 31))
         self.filterByAuthor.setStyleSheet("border-width: 10px;\n"
                                                 "border-radius: 10px;\n"
@@ -193,7 +194,7 @@ def configAuthorFilter(self, items, authors):
         for author in authors:
                 self.filterByAuthor.addItem(author)
         
-        self.filterByAuthor.currentTextChanged.connect(lambda : onSearchFilterChanged(self, items))
+        self.filterByAuthor.currentTextChanged.connect(lambda : onSearchFilterChanged(self, items, secs, secsNames, lib))
 
 def configCloseButton(self):
                 self.closeButton.setGeometry(QtCore.QRect(270, 0, 30, 30))
@@ -256,7 +257,7 @@ def configRemoveFilters(self):
         self.removeFilters.clicked.connect(lambda: self.filterByAuthor.setCurrentIndex(0))
         self.removeFilters.clicked.connect(lambda: self.filterBySection.setCurrentIndex(0))
 
-def configSearchBar(self, sizePolicy, items):
+def configSearchBar(self, sizePolicy, items, secs, secsNames, lib):
         self.searchBar.setFont(QtGui.QFont("Arial", 10))
         self.searchBar.setPlaceholderText("Search for a book")
         self.searchBar.setSizePolicy(sizePolicy)
@@ -267,10 +268,10 @@ def configSearchBar(self, sizePolicy, items):
                                      "background-color:#808080;")
         self.searchBar.setClearButtonEnabled(False)
         self.searchBar.setObjectName("searchBar")
-        self.searchBar.textChanged.connect(lambda: onSearchFilterChanged(self, items))
+        self.searchBar.textChanged.connect(lambda: onSearchFilterChanged(self, items, secs, secsNames, lib))
         self.gridLayout.addWidget(self.searchBar, 0, 0, 1, 1)
 
-def configSearchButton(self, items):
+def configSearchButton(self, items, secs, secsNames, lib):
         self.searchButton.setEnabled(True)
         self.searchButton.setStyleSheet("border-width: 10px;\n"
                                       "border-radius: 10px;\n"
@@ -282,10 +283,10 @@ def configSearchButton(self, items):
         self.searchButton.setIconSize(QtCore.QSize(25, 25))
         self.searchButton.setObjectName("searchButton")
         self.gridLayout.addWidget(self.searchButton, 0, 1, 1, 1)
-        self.searchButton.clicked.connect(lambda: onSearchFilterChanged(self, items))
+        self.searchButton.clicked.connect(lambda: onSearchFilterChanged(self, items, secs, secsNames, lib))
         self.searchBar.returnPressed.connect(self.searchButton.click)
 
-def configSectionFilter(self, items, secsNames):
+def configSectionFilter(self, items, secs, secsNames, lib):
         self.filterBySection.setGeometry(QtCore.QRect(10, 170, 281, 31))
         self.filterBySection.setStyleSheet("border-width: 10px;\n"
                                                 "border-radius: 10px;\n"
@@ -296,7 +297,7 @@ def configSectionFilter(self, items, secsNames):
         for sec in secsNames:
                 self.filterBySection.addItem(sec)
 
-        self.filterBySection.currentTextChanged.connect(lambda: onSearchFilterChanged(self, items))
+        self.filterBySection.currentTextChanged.connect(lambda: onSearchFilterChanged(self, items,secs, secsNames, lib))
 
 def configSideBar(self):
                 self.sideBar.setFeatures(QtWidgets.QDockWidget.DockWidgetMovable)
@@ -441,7 +442,7 @@ def onBuyClick(self, lib):
         configInvoiceConfirmButton(self)
         configInvoiceCancelButton(self)
 
-def onSearchFilterChanged(self, items):
+def onSearchFilterChanged(self, items, secs, secsNames, lib):
                 selectedAuthor = self.filterByAuthor.currentText()
                 selectedSection = self.filterBySection.currentText()
                 currentText = self.searchBar.text().lower()
@@ -450,17 +451,46 @@ def onSearchFilterChanged(self, items):
                                 self.listWidget.item(self.listWidget.row(item)+1).setHidden(True)
                                 self.listWidget.item(self.listWidget.row(item)+2).setHidden(True)
                        
-                for item in items: 
-                        #check if item is not removed by checking for NoneType
+                allBooks = []
+                searchAuthor = []
+                searchTitle = []
+                searchSection = []
+                searchResult = []
+
+                for sec in secs:
+                        for bk in sec.get_books():
+                                allBooks.append(bk.get_title())
+
+                if(selectedAuthor != "Filter By Author"):
+                        foundBooks = lib.search_book_by_author(selectedAuthor)
+                        for bk in foundBooks:
+                                searchAuthor.append(bk.get_title())
+                else:
+                        searchAuthor = allBooks
+
+                if(selectedSection != "Filter By Section"):
+                        foundBooks = lib.get_sections()[secsNames.index(selectedSection)].get_books()
+                        for bk in foundBooks:
+                                searchSection.append(bk.get_title())
+                else:
+                        searchSection = allBooks
+
+                if(currentText != ""):
+                        foundBooks = lib.search_book_by_title(currentText)
+                        for bk in foundBooks:
+                                searchTitle.append(bk.get_title())
+                else:
+                        searchTitle = allBooks
+                
+                
+                for bk in allBooks:
+                        if(bk in searchAuthor and bk in searchSection and bk in searchTitle):
+                                searchResult.append(bk)
+
+                for item in items:
                         if(self.listWidget.item(self.listWidget.row(item)) != None):
-                                if(currentText in self.listWidget.item(self.listWidget.row(item)).text().lower() or currentText == ""):
-                                        if (selectedAuthor in self.listWidget.item(self.listWidget.row(item)+1).text() or selectedAuthor == "Filter By Author"):
-                                                if(selectedSection in self.listWidget.item(self.listWidget.row(item)+1).text() or selectedSection == "Filter By Section"):
-                                                        item.setHidden(False)
-                                                else:
-                                                        item.setHidden(True)
-                                        else:
-                                                item.setHidden(True)
+                                if(self.listWidget.item(self.listWidget.row(item)).text().replace("      ","") in searchResult):
+                                        item.setHidden(False)
                                 else:
                                         item.setHidden(True)
 

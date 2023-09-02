@@ -33,7 +33,7 @@ class section:
     def search_book_by_title(self, title):
         temp: List[book] = []
         for bk in self.__books:
-            if bk.get_title() in title:
+            if title.lower() in bk.get_title().lower():
                 temp.append(bk)
         return temp
 
