@@ -19,10 +19,17 @@ Private Methods:
     __add_section: it adds a section to the sections list defined above.
     __import_books: it imports the books from the json file and add them to the sections list.
 """
+
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db
 from typing import List
 from section import section
 from book import book
 import json
+
+
+
 
 
 class library:
@@ -32,14 +39,16 @@ class library:
         self.__profits: float = 0
         self.__import_books()
 
-                       
+
     def __add_section(self, sectionTitle: str):
         newSection: section = section(sectionTitle)
         self.__sections.append(newSection)
 
     def __import_books(self):
-        with open('books.json', 'r') as db:
-            data: dict = json.load(db)
+        '''with open('books.json', 'r') as db:
+            data: dict = json.load(db)'''
+        self.__conncet_to_db()
+        data = self.choose_ref('books').get()
         for book in data:
             exists: bool = False
             for sec in self.__sections:
@@ -52,6 +61,14 @@ class library:
                 if data[book]['section'] == sec.get_title():
                     sec.add_book(book, data[book]['author'], data[book]['cost'])
                     break
+    
+    def __conncet_to_db(self):
+        cred = credentials.Certificate('./key.json')
+        firebase_admin.initialize_app(cred, {
+            'databaseURL': "https://book-store-sda-default-rtdb.firebaseio.com/"
+        })
+    def choose_ref(self, ref):
+        return db.reference(ref)
 
     def search_book_by_title(self, bookTitle: str):
         temp: List[book] = []

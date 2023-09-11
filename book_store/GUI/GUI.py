@@ -407,9 +407,14 @@ def onBuyClick(self, lib):
                 if(self.nameInput.text() != "" and self.addressInput.text() != ""):
                         self.buyWindow.close()
                         soldBookName = self.listWidget.item(self.listWidget.row(self.listWidget.currentItem())-2).text().replace("      ", "")
-                        invoice = open("book_store/invoices/invoice"+str(random.randint(0, 100000))+".txt", "w+")
-                        invoice.write("Name: "+self.nameInput.text()+"\nAddress: "+self.addressInput.text()+"\nBook: "+soldBookName+"\nPrice: "+self.listWidget.item(self.listWidget.row(self.listWidget.currentItem())-1).text().split("Price: ")[1])
-                        invoice.close()
+                        #connect to the database and add the invoice
+                        inv_ref = lib.choose_ref('invoices')
+                        inv_ref.push({
+                                "name": self.nameInput.text(),
+                                "address": self.addressInput.text(),
+                                "book": soldBookName,
+                                "price": self.listWidget.item(self.listWidget.row(self.listWidget.currentItem())-1).text().split("Price: ")[1],
+                        })
                         #items.remove(self.listWidget.row(self.listWidget.currentItem()))
                         self.listWidget.takeItem(self.listWidget.row(self.listWidget.currentItem())-2)
                         self.listWidget.takeItem(self.listWidget.row(self.listWidget.currentItem())-1)
